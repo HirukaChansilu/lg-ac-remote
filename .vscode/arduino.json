@@ -1,0 +1,8 @@
+{
+    "configuration": "cpu=atmega328old",
+    "board": "arduino:avr:nano",
+    "programmer": "avrisp",
+    "port": "COM6",
+    "sketch": "dynamic_ac_remote.ino",
+    "output": "../ArduinoOutput"
+}
