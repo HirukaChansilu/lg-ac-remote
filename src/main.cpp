@@ -1,18 +1,19 @@
+#define BUTTON_IN 3
+
 #include <Arduino.h>
+#include <Display.hpp>
 
-// put function declarations here:
-int myFunction(int, int);
+Display display;
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+void setup()
+{
+  pinMode(BUTTON_IN, INPUT);
+
+  display.begin();
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void loop()
+{
+  int val = analogRead(BUTTON_IN);
+  display.show_text(val);
 }
