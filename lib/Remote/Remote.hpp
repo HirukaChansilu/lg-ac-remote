@@ -43,7 +43,7 @@ public:
                 AC.Temperature++;
             }
             AC.sendTemperatureFanSpeedAndMode();
-            // AC.sendCommandAndParameter(LG_COMMAND_TEMPERATURE_PLUS, 0);
+            AC.sendCommandAndParameter(LG_COMMAND_TEMPERATURE_PLUS, 0);
         }
     }
     void decreaseTemp()
@@ -55,7 +55,7 @@ public:
                 AC.Temperature--;
             }
             AC.sendTemperatureFanSpeedAndMode();
-            // AC.sendCommandAndParameter(LG_COMMAND_TEMPERATURE_MINUS, 0);
+            AC.sendCommandAndParameter(LG_COMMAND_TEMPERATURE_MINUS, 0);
         }
     }
     void setTemp(int temp)

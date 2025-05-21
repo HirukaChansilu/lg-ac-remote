@@ -14,8 +14,6 @@ public:
     void clear();
     void show_off_screen();
     void ui(uint8_t temp, char mode);
-    void clear_mode_space();
-    void clear_temp_space();
 };
 
 #endif

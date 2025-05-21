@@ -1,151 +1,156 @@
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 
-#include <TinyWireM.h>
-#include <Tiny4kOLED.h>
+#include <Fonts/FreeSans9pt7b.h>
+#include <Fonts/FreeSans12pt7b.h>
 
 #include "Display.hpp"
 #include "Icons.hpp"
 
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 32 // OLED display height, in pixels
+
+#define OLED_RESET -1       // Reset pin # (or -1 if sharing Arduino reset pin)
+#define SCREEN_ADDRESS 0x3C ///< See datasheet for Address; 0x3D for 128x64, 0x3C for 128x32
+
+Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+
 void Display::begin()
 {
-    oled.begin();
+    // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
+    if (!oled.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS))
+    {
+        for (;;)
+            ; // Don't proceed, loop forever
+    }
 
-    oled.setFont(FONT6X8P);
-    oled.clear();
-    oled.on();
+    // Show initial display buffer contents on the screen --
+    // the library initializes this with an Adafruit splash screen.
+    oled.display();
+    delay(2000); // Pause for 2 seconds
+
+    // Clear the buffer
+    oled.clearDisplay();
+    oled.setTextColor(SSD1306_WHITE);
 }
 
 void Display::show_text(char text[])
 {
     oled.setCursor(0, 0);
     oled.println(text);
+    oled.display();
 }
 
 void Display::show_text(int text)
 {
     oled.setCursor(0, 0);
     oled.println(text);
+    oled.display();
 }
 
 void Display::show_text(char text)
 {
     oled.setCursor(0, 0);
     oled.println(text);
+    oled.display();
 }
 
 void Display::show_text(uint16_t text)
 {
     oled.setCursor(0, 0);
     oled.println(text);
+    oled.display();
 }
 
 void Display::show_text(uint8_t text)
 {
     oled.setCursor(0, 0);
     oled.println(text);
+    oled.display();
 }
 
 void Display::clear()
 {
-    oled.clear();
+    oled.clearDisplay();
+    oled.display();
 }
 
 void Display::show_off_screen()
 {
-    oled.setFontX2Smooth(FONT6X8P);
-    oled.setCursor(36, 1);
+    oled.setTextSize(2);
+    oled.setCursor(22, 8);
     oled.print("A/C OFF");
+    oled.display();
 }
 
 void Display::ui(uint8_t temp, char mode)
 {
-    oled.setFontX2Smooth(FONT6X8P);
-    oled.setCursor(10, 1);
+    oled.setFont(&FreeSans12pt7b);
+    oled.setCursor(2, 22);
     oled.print(temp);
-    oled.setCursor(40, 1);
+    oled.setCursor(32, 22);
     oled.print("C");
-    oled.setFont(FONT6X8P);
-    oled.setCursor(34, 1);
+
+    oled.setFont();
+    oled.setCursor(28, 2);
     oled.print("0");
 
-    oled.setFontX2Smooth(FONT6X8P);
-    oled.setCursor(60, 1);
+    oled.setCursor(60, 12);
     oled.print("<");
-    oled.setCursor(120, 1);
+    oled.setCursor(120, 12);
     oled.print(">");
 
-    oled.setCursor(56, 0);
-    oled.fillLength(0b11111111, 1);
-    oled.setCursor(56, 1);
-    oled.fillLength(0b11111111, 1);
-    oled.setCursor(56, 2);
-    oled.fillLength(0b11111111, 1);
-    oled.setCursor(56, 3);
-    oled.fillLength(0b11111111, 1);
+    oled.drawLine(55, 0, 55, 32, SSD1306_WHITE);
 
     switch (mode)
     {
     case 'o':
-        oled.setFontX2Smooth(FONT6X8P);
-        oled.setCursor(74, 1);
+        oled.setFont(&FreeSans9pt7b);
+        oled.setCursor(70, 24);
         oled.print("O");
-        oled.setCursor(106, 1);
+        oled.setCursor(106, 24);
         oled.print("T");
-        oled.bitmap(86, 0, 86 + 20, 4, epd_bitmap_OMT);
+        oled.drawBitmap(86, 0, omt_bitmap, 20, 32, SSD1306_WHITE);
         break;
 
     case 'j':
-        oled.setFont(FONT6X8P);
-        oled.setCursor(85, 1);
+        oled.setFont();
+        oled.setCursor(85, 8);
         oled.print("Jet");
-        oled.setCursor(82, 2);
+        oled.setCursor(82, 16);
         oled.print("Mode");
         break;
 
     case 'l':
-        oled.setFont(FONT6X8P);
-        oled.setCursor(76, 1);
+        oled.setFont();
+        oled.setCursor(76, 8);
         oled.print("Toggle");
-        oled.setCursor(76, 2);
+        oled.setCursor(76, 16);
         oled.print("Lights");
         break;
 
     case 'f':
-        oled.setFont(FONT6X8P);
-        oled.setCursor(85, 1);
+        oled.setFont();
+        oled.setCursor(85, 8);
         oled.print("Fan");
-        oled.setCursor(79, 2);
+        oled.setCursor(79, 16);
         oled.print("Speed");
         break;
 
     case 's':
-        oled.setFont(FONT6X8P);
-        oled.setCursor(76, 1);
+        oled.setFont();
+        oled.setCursor(76, 8);
         oled.print("Toggle");
-        oled.setCursor(79, 2);
+        oled.setCursor(79, 16);
         oled.print("Swing");
         break;
 
     default:
         break;
     }
+
+    oled.display();
 }
 
-void Display::clear_mode_space()
-{
-    oled.setCursor(72, 0);
-    oled.fillLength(0b00000000, 44);
-    oled.setCursor(72, 1);
-    oled.fillLength(0b00000000, 44);
-    oled.setCursor(72, 2);
-    oled.fillLength(0b00000000, 44);
-    oled.setCursor(72, 3);
-    oled.fillLength(0b00000000, 44);
-}
-
-void Display::clear_temp_space()
-{
-    oled.setCursor(0, 1);
-    oled.fillLength(0b00000000, 54);
-    oled.setCursor(0, 2);
-    oled.fillLength(0b00000000, 54);
-}
