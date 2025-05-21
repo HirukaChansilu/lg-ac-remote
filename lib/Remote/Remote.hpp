@@ -1,7 +1,7 @@
 #ifndef __REMOTE_HPP__
 #define __REMOTE_HPP__
 
-#define EMITTER_PIN 1
+#define EMITTER_PIN 2
 
 #include <IRremote.hpp>
 #include <ac_LG.hpp>
@@ -18,7 +18,7 @@ public:
     {
         IrSender.begin(EMITTER_PIN);
         AC.setType(LG_IS_WALL_TYPE);
-        AC.FanIntensity = 2;
+        AC.FanIntensity = 4;
         AC.Temperature = 22;
         AC.Mode = AC_MODE_COOLING;
         AC.PowerIsOn = false;
@@ -38,10 +38,6 @@ public:
     {
         if (AC.PowerIsOn)
         {
-            if (AC.Temperature < 30)
-            {
-                AC.Temperature++;
-            }
             AC.sendTemperatureFanSpeedAndMode();
             AC.sendCommandAndParameter(LG_COMMAND_TEMPERATURE_PLUS, 0);
         }
@@ -50,10 +46,6 @@ public:
     {
         if (AC.PowerIsOn)
         {
-            if (AC.Temperature > 18)
-            {
-                AC.Temperature--;
-            }
             AC.sendTemperatureFanSpeedAndMode();
             AC.sendCommandAndParameter(LG_COMMAND_TEMPERATURE_MINUS, 0);
         }
@@ -88,6 +80,14 @@ public:
         if (AC.PowerIsOn)
         {
             AC.FanIntensity = speed;
+            AC.sendTemperatureFanSpeedAndMode();
+        }
+    }
+    void toggleFanSpeed()
+    {
+        if (AC.PowerIsOn)
+        {
+            AC.FanIntensity = (AC.FanIntensity + 1) % 5;
             AC.sendTemperatureFanSpeedAndMode();
         }
     }

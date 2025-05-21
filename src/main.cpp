@@ -1,111 +1,105 @@
-#define BUTTON_IN 3
-
 #include <Arduino.h>
 #include <Display.hpp>
+#include <Button.hpp>
 #include <Remote.hpp>
 
 Display display;
-// Remote remote;
+Button button;
+Remote remote;
 
-// uint16_t val;
-// char button_name = 'i';
-// char button_name_pre = '0';
-// uint8_t currentModeIndex = 0;
-
-// const char modes[5] = {'o', 'j', 'l', 'f', 's'};
+static int currentMode = 0;
+static int lastMode = -1;
+static int lastPowerMode = -1;
+static int lastTemp = -1;
 
 void setup()
 {
-  pinMode(BUTTON_IN, INPUT);
 
   display.begin();
-  // remote.init();
+  button.begin();
+  remote.init();
 }
 
-// void loop()
-// {
-//   char mode = pgm_read_byte(&modes[currentModeIndex]);
+void loop()
+{
 
-//   val = analogRead(BUTTON_IN);
+  Event event = button.event();
 
-//   if (val > 1000)
-//   {
-//     button_name = 'P';
-//   }
-//   else if (val > 900)
-//   {
-//     button_name = 'M';
-//   }
-//   else if (val > 800)
-//   {
-//     button_name = 'S';
-//   }
-//   else if (val > 700)
-//   {
-//     button_name = 'U';
-//   }
-//   else if (val > 500)
-//   {
-//     button_name = 'D';
-//   }
-//   else
-//   {
-//     button_name = 'i';
-//   }
+  if (event.button >= 0)
+  {
+    if (event.button == 0 && event.longPress)
+    {
+      remote.switchPower();
+    }
+    else if (event.button == 0 && !event.longPress)
+    {
+      switch (currentMode)
+      {
+      case 0:
+        remote.setTemp(22);
+        break;
 
-//   if (button_name != button_name_pre)
-//   {
+      case 1:
+        remote.jetMode();
+        break;
 
-//     switch (button_name)
-//     {
-//     case 'P':
-//       display.clear();
-//       remote.switchPower();
-//       break;
+      case 2:
+        remote.toggleLight();
 
-//     case 'M':
-//       if (remote.AC.PowerIsOn)
-//       {
-//         display.clear_mode_space();
-//         delay(100);
-//         currentModeIndex = (currentModeIndex + 1) % 5;
-//       }
-//       break;
+      case 3:
+        remote.toggleFanSpeed();
 
-//     case 'S':
-//       break;
+      case 4:
+        remote.toggleSwing();
 
-//     case 'U':
-//       if (remote.AC.PowerIsOn)
-//       {
-//         display.clear_temp_space();
-//         delay(100);
-//         remote.increaseTemp();
-//       }
+      default:
+        break;
+      }
+    }
+    else if (
+        event.button == 1 && !event.longPress)
+    {
+      remote.increaseTemp();
+    }
+    else if (
+        event.button == 2 && !event.longPress)
+    {
+      remote.decreaseTemp();
+    }
+    else if (event.button == 1 && event.longPress)
+    {
+      currentMode++;
+      if (currentMode > 4)
+      {
+        currentMode = 0;
+      }
+    }
+    else if (event.button == 2 && event.longPress)
+    {
+      currentMode--;
+      if (currentMode < 0)
+      {
+        currentMode = 4;
+      }
+    }
+  }
 
-//     case 'D':
-//       if (remote.AC.PowerIsOn)
-//       {
-//         display.clear_temp_space();
-//         delay(100);
-//         remote.decreaseTemp();
-//       }
+  if (currentMode != lastMode ||
+      remote.AC.PowerIsOn != lastPowerMode ||
+      remote.AC.Temperature != lastTemp)
+  {
+    display.clear();
+    lastPowerMode = remote.AC.PowerIsOn;
+    lastMode = currentMode;
+    lastTemp = remote.AC.Temperature;
+  }
 
-//     default:
-//       break;
-//     }
-
-//     button_name_pre = button_name;
-//   }
-
-//   if (remote.AC.PowerIsOn)
-//   {
-//     display.ui(remote.AC.Temperature, mode);
-//   }
-//   else
-//   {
-//     display.show_off_screen();
-//   }
-
-//   delay(100);
-// }
+  if (remote.AC.PowerIsOn)
+  {
+    display.ui(remote.AC.Temperature, currentMode);
+  }
+  else
+  {
+    display.show_off_screen();
+  }
+}

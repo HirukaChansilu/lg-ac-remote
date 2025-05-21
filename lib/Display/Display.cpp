@@ -38,6 +38,7 @@ void Display::begin()
 
 void Display::show_text(char text[])
 {
+    oled.clearDisplay();
     oled.setCursor(0, 0);
     oled.println(text);
     oled.display();
@@ -45,6 +46,7 @@ void Display::show_text(char text[])
 
 void Display::show_text(int text)
 {
+    oled.clearDisplay();
     oled.setCursor(0, 0);
     oled.println(text);
     oled.display();
@@ -52,6 +54,7 @@ void Display::show_text(int text)
 
 void Display::show_text(char text)
 {
+    oled.clearDisplay();
     oled.setCursor(0, 0);
     oled.println(text);
     oled.display();
@@ -59,6 +62,7 @@ void Display::show_text(char text)
 
 void Display::show_text(uint16_t text)
 {
+    oled.clearDisplay();
     oled.setCursor(0, 0);
     oled.println(text);
     oled.display();
@@ -66,6 +70,7 @@ void Display::show_text(uint16_t text)
 
 void Display::show_text(uint8_t text)
 {
+    oled.clearDisplay();
     oled.setCursor(0, 0);
     oled.println(text);
     oled.display();
@@ -79,14 +84,16 @@ void Display::clear()
 
 void Display::show_off_screen()
 {
-    oled.setTextSize(2);
-    oled.setCursor(22, 8);
+    oled.setFont(&FreeSans12pt7b);
+    oled.setCursor(18, 22);
     oled.print("A/C OFF");
     oled.display();
 }
 
 void Display::ui(uint8_t temp, char mode)
 {
+    oled.setTextSize(1);
+
     oled.setFont(&FreeSans12pt7b);
     oled.setCursor(2, 22);
     oled.print(temp);
@@ -106,7 +113,7 @@ void Display::ui(uint8_t temp, char mode)
 
     switch (mode)
     {
-    case 'o':
+    case 0: // OMT
         oled.setFont(&FreeSans9pt7b);
         oled.setCursor(70, 24);
         oled.print("O");
@@ -115,7 +122,7 @@ void Display::ui(uint8_t temp, char mode)
         oled.drawBitmap(86, 0, omt_bitmap, 20, 32, SSD1306_WHITE);
         break;
 
-    case 'j':
+    case 1: // Jet
         oled.setFont();
         oled.setCursor(85, 8);
         oled.print("Jet");
@@ -123,7 +130,7 @@ void Display::ui(uint8_t temp, char mode)
         oled.print("Mode");
         break;
 
-    case 'l':
+    case 2: // Lights
         oled.setFont();
         oled.setCursor(76, 8);
         oled.print("Toggle");
@@ -131,7 +138,7 @@ void Display::ui(uint8_t temp, char mode)
         oled.print("Lights");
         break;
 
-    case 'f':
+    case 3: // Fan
         oled.setFont();
         oled.setCursor(85, 8);
         oled.print("Fan");
@@ -139,7 +146,7 @@ void Display::ui(uint8_t temp, char mode)
         oled.print("Speed");
         break;
 
-    case 's':
+    case 4: // Swing
         oled.setFont();
         oled.setCursor(76, 8);
         oled.print("Toggle");
@@ -153,4 +160,3 @@ void Display::ui(uint8_t temp, char mode)
 
     oled.display();
 }
-
