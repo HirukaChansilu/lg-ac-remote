@@ -1,27 +1,22 @@
 #ifndef __REMOTE_HPP__
 #define __REMOTE_HPP__
 
-#define EMITTER_PIN 2
+#define EMITTER_PIN 3
 
 #include <IRremote.hpp>
 #include <ac_LG.hpp>
 
 class Remote
 {
-public:
+private:
     Aircondition_LG AC;
-
     bool isSwing = true;
-    uint8_t temp = 22;
 
+public:
     void init()
     {
         IrSender.begin(EMITTER_PIN);
         AC.setType(LG_IS_WALL_TYPE);
-        AC.FanIntensity = 4;
-        AC.Temperature = 22;
-        AC.Mode = AC_MODE_COOLING;
-        AC.PowerIsOn = false;
     };
     void switchPower()
     {
@@ -38,7 +33,6 @@ public:
     {
         if (AC.PowerIsOn)
         {
-            AC.sendTemperatureFanSpeedAndMode();
             AC.sendCommandAndParameter(LG_COMMAND_TEMPERATURE_PLUS, 0);
         }
     }
@@ -46,7 +40,6 @@ public:
     {
         if (AC.PowerIsOn)
         {
-            AC.sendTemperatureFanSpeedAndMode();
             AC.sendCommandAndParameter(LG_COMMAND_TEMPERATURE_MINUS, 0);
         }
     }
@@ -54,41 +47,35 @@ public:
     {
         if (AC.PowerIsOn)
         {
-            if (temp >= 18 && temp <= 30)
-            {
-                AC.Temperature = temp;
-                AC.sendTemperatureFanSpeedAndMode();
-            }
+            AC.sendCommandAndParameter(LG_COMMAND_TEMPERATURE, temp);
         }
     }
     void jetMode()
     {
         if (AC.PowerIsOn)
         {
-            AC.sendIRCommand(LG_JET_ON);
+            AC.sendCommandAndParameter(LG_COMMAND_JET, 0);
         }
     }
     void toggleLight()
     {
         if (AC.PowerIsOn)
         {
-            AC.sendIRCommand(LG_LIGHT);
+            AC.sendCommandAndParameter(LG_COMMAND_LIGHT, 0);
         }
     }
     void setFanSpeed(int speed)
     {
         if (AC.PowerIsOn)
         {
-            AC.FanIntensity = speed;
-            AC.sendTemperatureFanSpeedAndMode();
+            AC.sendCommandAndParameter(LG_COMMAND_FAN_SPEED, speed);
         }
     }
     void toggleFanSpeed()
     {
         if (AC.PowerIsOn)
         {
-            AC.FanIntensity = (AC.FanIntensity + 1) % 5;
-            AC.sendTemperatureFanSpeedAndMode();
+            AC.sendCommandAndParameter(LG_COMMAND_FAN_SPEED, (AC.FanIntensity + 1) % SIZE_OF_FAN_SPEED_MAPPING_TABLE);
         }
     }
     void toggleSwing()
@@ -97,8 +84,16 @@ public:
         {
             isSwing = !isSwing;
 
-            AC.sendIRCommand(isSwing ? LG_WALL_SWING_ON : LG_WALL_SWING_OFF);
+            AC.sendCommandAndParameter(LG_COMMAND_SWING, isSwing ? 1 : 0);
         }
+    }
+    bool getPowerMode()
+    {
+        return AC.PowerIsOn;
+    }
+    int getTemp()
+    {
+        return AC.Temperature;
     }
 };
 

@@ -14,7 +14,6 @@ static int lastTemp = -1;
 
 void setup()
 {
-
   display.begin();
   button.begin();
   remote.init();
@@ -85,18 +84,18 @@ void loop()
   }
 
   if (currentMode != lastMode ||
-      remote.AC.PowerIsOn != lastPowerMode ||
-      remote.AC.Temperature != lastTemp)
+      remote.getPowerMode() != lastPowerMode ||
+      remote.getTemp() != lastTemp)
   {
     display.clear();
-    lastPowerMode = remote.AC.PowerIsOn;
+    lastPowerMode = remote.getPowerMode();
     lastMode = currentMode;
-    lastTemp = remote.AC.Temperature;
+    lastTemp = remote.getTemp();
   }
 
-  if (remote.AC.PowerIsOn)
+  if (remote.getPowerMode())
   {
-    display.ui(remote.AC.Temperature, currentMode);
+    display.ui(remote.getTemp(), currentMode);
   }
   else
   {
